@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Feature.Manager.Api.FeatureRuns.Exceptions;
 using Feature.Manager.Api.FeatureRuns.ViewModels;
 using Feature.Manager.Api.Features.Exceptions;
+using Feature.Manager.Api.Features.ViewModels;
 
 namespace Feature.Manager.Api.FeatureRuns
 {
@@ -13,6 +15,7 @@ namespace Feature.Manager.Api.FeatureRuns
         Task<List<FeatureRun>> GetRunsForFeatureByFeatId(string featId);
         Task<FeatureRun> StopFeatureRun(StopFeatureRunRequest request);
         Task<FeatureRun> GetById(string runId);
+        Task<List<RunningFeature>> GetRunningFeatures();
     }
     public class FeatureRunService : IFeatureRunService
     {
@@ -25,12 +28,36 @@ namespace Feature.Manager.Api.FeatureRuns
 
         public async Task<FeatureRun> CreateFeatureRun(CreateFeatureRunRequest request)
         {
-            throw new System.NotImplementedException();
+            try
+            {
+                var runs = await _featureRunRepository.GetRunsForFeatureByFeatId(request.FeatId);
+                if (runs.Any(x => x.EndAt == null))
+                {
+                    throw new FeatureAlreadyRunningException();
+                }
+
+                return await _featureRunRepository.CreateFeatureRun(request);
+            }
+            catch (FeatureAlreadyRunningException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                throw new UnknownDbException(e.Message);
+            }
         }
 
         public async Task<List<FeatureRun>> GetRunsForFeatureByFeatId(string featId)
         {
-            throw new System.NotImplementedException();
+            try
+            {
+                return await _featureRunRepository.GetRunsForFeatureByFeatId(featId);
+            }
+            catch (Exception e)
+            {
+                throw new UnknownDbException(e.Message);
+            }
         }
 
         public async Task<FeatureRun> StopFeatureRun(StopFeatureRunRequest request)
@@ -69,6 +96,18 @@ namespace Feature.Manager.Api.FeatureRuns
             try
             {
                 return await _featureRunRepository.GetById(runId);
+            }
+            catch (Exception e)
+            {
+                throw new UnknownDbException(e.Message);
+            }
+        }
+
+        public async Task<List<RunningFeature>> GetRunningFeatures()
+        {
+            try
+            {
+                return await _featureRunRepository.GetRunningFeatures();
             }
             catch (Exception e)
             {

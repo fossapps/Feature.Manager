@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Feature.Manager.Api.FeatureRuns.ViewModels;
+using Feature.Manager.Api.Features.ViewModels;
 using Feature.Manager.Api.Models;
 using Feature.Manager.Api.Uuid;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,7 @@ namespace Feature.Manager.Api.FeatureRuns
         Task<List<FeatureRun>> GetRunsForFeatureByFeatId(string featId);
         Task<FeatureRun> StopFeatureRun(StopFeatureRunRequest request);
         Task<FeatureRun> GetById(string featureRunId);
+        Task<List<RunningFeature>> GetRunningFeatures();
     }
     public class FeatureRunRepository : IFeatureRunRepository
     {
@@ -53,10 +55,7 @@ namespace Feature.Manager.Api.FeatureRuns
             _db.Attach(featureRun);
             Enum.TryParse(request.StopResult, out StopResult stopResult);
             featureRun.StopResult = stopResult;
-            if (stopResult == StopResult.ChangeSettings)
-            {
-                featureRun.EndAt = DateTime.Now;
-            }
+            featureRun.EndAt = DateTime.Now;
             await _db.SaveChangesAsync();
             return featureRun;
         }
@@ -64,6 +63,24 @@ namespace Feature.Manager.Api.FeatureRuns
         public Task<FeatureRun> GetById(string featureRunId)
         {
             return _db.FeatureRuns.AsNoTracking().FirstOrDefaultAsync(x => x.Id == featureRunId);
+        }
+
+        public async Task<List<RunningFeature>> GetRunningFeatures()
+        {
+            return await _db
+                .FeatureRuns
+                .AsNoTracking()
+                .Where(x => (DateTime.Now > x.StartAt && DateTime.Now < x.EndAt) || x.StopResult == StopResult.AllB)
+                .Join(_db.Features, run => run.FeatId, feature => feature.FeatId, (run, feature) => new RunningFeature
+                {
+                    Allocation = run.Allocation,
+                    FeatureToken = feature.FeatureToken,
+                    RunToken = run.RunToken,
+                    RunId = run.Id,
+                    RunStatus = run.StopResult,
+                    FeatureId = feature.FeatId
+                })
+                .ToListAsync();
         }
     }
 }

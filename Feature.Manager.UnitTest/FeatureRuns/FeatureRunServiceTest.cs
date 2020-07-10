@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Feature.Manager.Api.FeatureRuns;
 using Feature.Manager.Api.FeatureRuns.Exceptions;
 using Feature.Manager.Api.FeatureRuns.ViewModels;
 using Feature.Manager.Api.Features.Exceptions;
+using Feature.Manager.Api.Features.ViewModels;
 using Moq;
 using NUnit.Framework;
 
@@ -57,6 +59,29 @@ namespace Feature.Manager.UnitTest.FeatureRuns
                         StopResult = stopResult
                     };
                 });
+            mock.Setup(x => x.GetRunsForFeatureByFeatId("APP-1")).ReturnsAsync(new List<FeatureRun>
+            {
+                new FeatureRun
+                {
+                    Allocation = 100,
+                    Id = "123",
+                    EndAt = DateTime.Now.Subtract(TimeSpan.FromDays(1)),
+                    FeatId = "APP-1",
+                    RunToken = "12312312313",
+                    StartAt = DateTime.Now.Subtract(TimeSpan.FromDays(5)),
+                    StopResult = StopResult.ChangeSettings,
+                },
+                new FeatureRun
+                {
+                    Allocation = 100,
+                    Id = "123",
+                    EndAt = null,
+                    FeatId = "APP-1",
+                    RunToken = "12312312313",
+                    StartAt = DateTime.Now.Subtract(TimeSpan.FromDays(5)),
+                }
+            });
+            mock.Setup(x => x.GetRunsForFeatureByFeatId("APP-2")).ThrowsAsync(new InvalidCastException());
             _mock = mock;
             _featureRunService = new FeatureRunService(_mock.Object);
         }
@@ -119,6 +144,60 @@ namespace Feature.Manager.UnitTest.FeatureRuns
                 StopResult = "AllA"
             });
             Assert.AreEqual(StopResult.AllA, result.StopResult);
+        }
+
+
+        [Test]
+        public async Task TestGetRunByFeatureIdHandlesException()
+        {
+            Assert.ThrowsAsync<UnknownDbException>(() => _featureRunService.GetRunsForFeatureByFeatId("APP-2"));
+        }
+
+        [Test]
+        public async Task TestGetRunByFeatureIdReturnsListOfFeatures()
+        {
+            var response = await _featureRunService.GetRunsForFeatureByFeatId("APP-1");
+            Assert.IsNotEmpty(response);
+        }
+
+        [Test]
+        public async Task TestGetRunningFeaturesReturnsFromRepository()
+        {
+            var mock = new Mock<IFeatureRunRepository>();
+            var mockData = new List<RunningFeature>
+            {
+                new RunningFeature
+                {
+                    Allocation = 100,
+                    FeatureId = "APP-123",
+                    FeatureToken = "1231223",
+                    RunId = "1231234124",
+                    RunStatus = StopResult.AllB,
+                    RunToken = "2134142334234",
+                },
+                new RunningFeature
+                {
+                    Allocation = 100,
+                    FeatureId = "APP-125",
+                    FeatureToken = "1231223",
+                    RunId = "1231234124",
+                    RunStatus = StopResult.AllB,
+                    RunToken = "2134142334234",
+                },
+            };
+            mock.Setup(x => x.GetRunningFeatures()).ReturnsAsync(mockData);
+            var systemUnderTest = new FeatureRunService(mock.Object);
+            var result = await systemUnderTest.GetRunningFeatures();
+            Assert.AreSame(mockData, result);
+        }
+
+        [Test]
+        public async Task TestGetRunningFeaturesHandlesException()
+        {
+            var mock = new Mock<IFeatureRunRepository>();
+            mock.Setup(x => x.GetRunningFeatures()).ThrowsAsync(new InvalidCastException());
+            var systemUnderTest = new FeatureRunService(mock.Object);
+            Assert.ThrowsAsync<UnknownDbException>(() => systemUnderTest.GetRunningFeatures());
         }
     }
 }

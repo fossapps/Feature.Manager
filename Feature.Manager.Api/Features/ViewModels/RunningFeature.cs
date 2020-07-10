@@ -2,7 +2,7 @@ using Feature.Manager.Api.FeatureRuns;
 
 namespace Feature.Manager.Api.Features.ViewModels
 {
-    public class RunningFeatures
+    public class RunningFeature
     {
         public string FeatureToken { set; get; }
         public int Allocation { set; get; }
