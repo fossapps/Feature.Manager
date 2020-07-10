@@ -1,0 +1,25 @@
+version: '3'
+services:
+  api:
+    image: fossapps/micro.starter
+    ports:
+      - 5000:5000
+    environment:
+      - ASPNETCORE_ENVIRONMENT=ci
+  postgres:
+    image: postgres:11-alpine
+    ports:
+      - 15433:5432
+    environment:
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_USER=starter
+      - POSTGRES_DB=starter_db
+  influxdb:
+    image: influxdb
+    environment:
+      - INFLUXDB_ADMIN_USER=cyberhck
+      - INFLUXDB_ADMIN_PASSWORD=secret
+      - INFLUXDB_DB=monitoring
+    ports:
+      - 8086:8086 # http api
+      - 8083:8083 # admin interface

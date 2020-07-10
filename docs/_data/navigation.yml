@@ -1,0 +1,18 @@
+docs:
+  - title: Getting Started
+    children:
+      - title: "Quick-Start Guide"
+        url: /quick_start/
+      - title: "Structure"
+        url: /structure/
+      - title: "Continuous Integration"
+        url: /ci/
+      - title: "Using API"
+        url: /api_docs/
+      - title: "Changing Configuration"
+        url: /changing_api_configuration/
+
+  - title: Automations
+    children:
+      - title: "Automatic Releases"
+        url: /automations/release/

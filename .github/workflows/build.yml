@@ -1,0 +1,90 @@
+name: Build
+
+on: [push]
+
+env:
+  SERVICE_NAME: micro.starter
+  SERVICE_NAME_CAPITALIZED: Micro.Starter
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.100
+
+      - name: Build
+        run:  dotnet build --configuration Release
+
+  run-unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.100
+
+      - name: Run Unit Tests
+        run:  dotnet test
+
+  build-docker-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Build Docker Image
+        run: |
+          TAG=`git rev-parse --short=4 ${GITHUB_SHA}`
+          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login --username "${{ secrets.DOCKERHUB_LOGIN }}" --password-stdin
+          docker build . -t fossapps/$SERVICE_NAME --build-arg VERSION=$TAG
+          docker tag fossapps/$SERVICE_NAME fossapps/$SERVICE_NAME:$TAG
+          docker push fossapps/$SERVICE_NAME:$TAG
+  run-postman-tests:
+    needs: build-docker-image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pull Docker Image
+        uses: actions/checkout@v1
+        with:
+          name: docker-pull
+
+      - name: 'Load Docker Image'
+        run: |
+          TAG=`git rev-parse --short=4 ${GITHUB_SHA}`
+          docker pull fossapps/$SERVICE_NAME:$TAG
+      - name: Spin-up Containers
+        run: |
+          TAG=`git rev-parse --short=4 ${GITHUB_SHA}`
+          TAG=$TAG docker-compose -f ./docker-compose.ci.yml up -d
+      - name: Run Postman Tests
+        run: |
+          cd ./${SERVICE_NAME_CAPITALIZED}.UnitTest/ExternalTests
+          sh ./postman_tests.sh
+
+  publish:
+    needs: [ build-docker-image, run-postman-tests ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v2
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          DOCKERHUB_LOGIN: ${{secrets.DOCKERHUB_LOGIN}}
+          DOCKERHUB_PASSWORD: ${{secrets.DOCKERHUB_PASSWORD}}
+        with:
+          extra_plugins: |
+            @semantic-release/git@7.0.18
+            @semantic-release/exec@3.3.8
+            @semantic-release/changelog@3.0.0
