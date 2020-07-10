@@ -30,7 +30,7 @@ namespace Feature.Manager.UnitTest.Features
                             Description = "rand description 1",
                             Hypothesis = "rand hypo 2",
                             Id = uuid.GenerateUuId(),
-                            ExperimentToken = uuid.GenerateUuId(),
+                            FeatureToken = uuid.GenerateUuId(),
                             FeatId = $"{x}-001"
                         },
                         new Api.Features.Feature
@@ -38,7 +38,7 @@ namespace Feature.Manager.UnitTest.Features
                             Description = "rand description 2",
                             Hypothesis = "rand hypo 2",
                             Id = uuid.GenerateUuId(),
-                            ExperimentToken = uuid.GenerateUuId(),
+                            FeatureToken = uuid.GenerateUuId(),
                             FeatId = $"{x}-002"
                         },
                         new Api.Features.Feature
@@ -46,7 +46,7 @@ namespace Feature.Manager.UnitTest.Features
                             Description = "rand description 3",
                             Hypothesis = "rand hypo 3",
                             Id = uuid.GenerateUuId(),
-                            ExperimentToken = uuid.GenerateUuId(),
+                            FeatureToken = uuid.GenerateUuId(),
                             FeatId = $"{x}-003"
                         }
                     };
@@ -66,12 +66,9 @@ namespace Feature.Manager.UnitTest.Features
         }
 
         [Test]
-        public async Task FeatureSearchServiceHandlesExceptions()
+        public void FeatureSearchServiceHandlesExceptions()
         {
-            Assert.ThrowsAsync<UnknownDbException>(async () =>
-            {
-                await _systemUnderTest.SearchFeatureByFeatId("ERR");
-            });
+            Assert.ThrowsAsync<UnknownDbException>(() => _systemUnderTest.SearchFeatureByFeatId("ERR"));
         }
     }
 }

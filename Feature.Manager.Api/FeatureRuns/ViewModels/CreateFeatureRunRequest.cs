@@ -10,11 +10,11 @@ namespace Feature.Manager.Api.FeatureRuns.ViewModels
 
         [Required]
         [Range(0, 100)]
-
         public int Allocation { set; get; }
 
         [Required]
         public DateTime StartAt { set; get; }
+
         public DateTime? EndAt { set; get; }
     }
 }

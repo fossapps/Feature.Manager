@@ -25,5 +25,7 @@ namespace Feature.Manager.Api.FeatureRuns
     {
         AllB,
         Removed,
+        AllA,
+        ChangeSettings
     }
 }

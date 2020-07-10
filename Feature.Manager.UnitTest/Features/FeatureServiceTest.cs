@@ -73,15 +73,12 @@ namespace Feature.Manager.UnitTest.Features
         [Test]
         public async Task CreateThrowsErrorIfDuplicate()
         {
-            Assert.ThrowsAsync<FeatureAlreadyExistsException>(async () =>
+            Assert.ThrowsAsync<FeatureAlreadyExistsException>(() => _systemUnderTest.Create(new CreateFeatureRequest
             {
-                await _systemUnderTest.Create(new CreateFeatureRequest
-                {
-                    Description = "random new description",
-                    Hypothesis = "random hypo",
-                    FeatId = "TEST-123"
-                });
-            });
+                Description = "random new description",
+                Hypothesis = "random hypo",
+                FeatId = "TEST-123"
+            }));
         }
 
         [Test]
@@ -103,15 +100,12 @@ namespace Feature.Manager.UnitTest.Features
         [Test]
         public async Task CreateThrowsFeatureCreatingExceptionIfCreationFailsTest()
         {
-            Assert.ThrowsAsync<FeatureCreatingFailedException>(async () =>
+            Assert.ThrowsAsync<FeatureCreatingFailedException>(() => _systemUnderTest.Create(new CreateFeatureRequest
             {
-                await _systemUnderTest.Create(new CreateFeatureRequest
-                {
-                    Description = "description",
-                    Hypothesis = "hypothesis",
-                    FeatId = "TEST-1"
-                });
-            });
+                Description = "description",
+                Hypothesis = "hypothesis",
+                FeatId = "TEST-1"
+            }));
         }
 
         [Test]
@@ -123,10 +117,7 @@ namespace Feature.Manager.UnitTest.Features
         [Test]
         public async Task ResetFeatureTokenThrowsErrorIfResettingFails()
         {
-            Assert.ThrowsAsync<FeatureTokenResetFailedException>(async () =>
-            {
-                await _systemUnderTest.ResetFeatureToken("TEST-2");
-            });
+            Assert.ThrowsAsync<FeatureTokenResetFailedException>(() => _systemUnderTest.ResetFeatureToken("TEST-2"));
         }
 
         [Test]
