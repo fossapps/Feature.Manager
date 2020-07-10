@@ -1,27 +1,27 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Feature.Manager.Api.FeatureRuns;
 using Feature.Manager.Api.Features.Exceptions;
 using Feature.Manager.Api.Features.ViewModels;
+using Feature.Manager.Api.Uuid;
 
 namespace Feature.Manager.Api.Features
 {
     public interface IFeatureService
     {
         Task<Feature> Create(CreateFeatureRequest request);
-        Task<Feature> ResetFeatureToken();
-        Task<Feature> GetFeatureById(string id);
+        Task<Feature> ResetFeatureToken(string featId);
         Task<Feature> GetFeatureByFeatId(string featId);
-        Task<List<Feature>> SearchFeatureByFeatId(string partialFeatId);
     }
+
     public class FeatureService : IFeatureService
     {
         private readonly IFeatureRepository _featureRepository;
+        private readonly IUuidService _uuidService;
 
-        public FeatureService(IFeatureRepository featureRepository)
+        public FeatureService(IFeatureRepository featureRepository, IUuidService uuidService)
         {
             _featureRepository = featureRepository;
+            _uuidService = uuidService;
         }
 
         public async Task<Feature> Create(CreateFeatureRequest request)
@@ -46,24 +46,37 @@ namespace Feature.Manager.Api.Features
             }
         }
 
-        public async Task<Feature> ResetFeatureToken()
+        public async Task<Feature> ResetFeatureToken(string featId)
         {
-            throw new System.NotImplementedException();
-        }
-
-        public async Task<Feature> GetFeatureById(string id)
-        {
-            throw new System.NotImplementedException();
+            try
+            {
+                var feature = await _featureRepository.FindByFeatId(featId);
+                if (feature == null)
+                {
+                    throw new FeatureNotFoundException();
+                }
+                return await _featureRepository.ResetFeatureToken(featId, _uuidService.GenerateUuId());
+            }
+            catch (FeatureNotFoundException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                throw new FeatureTokenResetFailedException(e.Message);
+            }
         }
 
         public async Task<Feature> GetFeatureByFeatId(string featId)
         {
-            throw new System.NotImplementedException();
-        }
-
-        public async Task<List<Feature>> SearchFeatureByFeatId(string partialFeatId)
-        {
-            throw new System.NotImplementedException();
+            try
+            {
+                return await _featureRepository.FindByFeatId(featId);
+            }
+            catch (Exception e)
+            {
+                throw new UnknownDbException(e.Message);
+            }
         }
     }
 }

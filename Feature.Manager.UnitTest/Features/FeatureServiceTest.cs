@@ -12,6 +12,7 @@ namespace Feature.Manager.UnitTest.Features
     public class FeatureServiceTest
     {
         private Mock<IFeatureRepository> _mockRepository;
+        private FeatureService _systemUnderTest;
         [SetUp]
         public void Setup()
         {
@@ -24,6 +25,15 @@ namespace Feature.Manager.UnitTest.Features
                 ExperimentToken = "exp-token",
                 FeatId = "TEST-123"
             });
+            repo.Setup(x => x.FindByFeatId("TEST-2")).ReturnsAsync(new Api.Features.Feature
+            {
+                Description = "test description cant reset token",
+                Hypothesis = "test hypo",
+                Id = "test-id",
+                ExperimentToken = "exp-token",
+                FeatId = "TEST-123"
+            });
+            repo.Setup(x => x.FindByFeatId("TEST-3")).ThrowsAsync(new InvalidCastException());
             repo.Setup(x => x.CreateFeature(It.IsAny<CreateFeatureRequest>())).ReturnsAsync(
                 (CreateFeatureRequest request) =>
                 {
@@ -42,15 +52,30 @@ namespace Feature.Manager.UnitTest.Features
                     };
                 });
             _mockRepository = repo;
+            repo.Setup(x => x.ResetFeatureToken("TEST-2", It.IsAny<string>())).ThrowsAsync(new InvalidCastException());
+
+            repo.Setup(x => x.ResetFeatureToken(It.Is<string>(x => x != "TEST-2"), It.IsAny<string>()))
+                .ReturnsAsync((string id, string newToken) =>
+                {
+                    var uuid = new UuidService();
+                    return new Api.Features.Feature
+                    {
+                        Description = "rand description",
+                        Hypothesis = "rand hypo",
+                        Id = uuid.GenerateUuId(),
+                        ExperimentToken = newToken,
+                        FeatId = id,
+                    };
+                });
+            _systemUnderTest = new FeatureService(_mockRepository.Object, new UuidService());
         }
 
         [Test]
         public async Task CreateThrowsErrorIfDuplicate()
         {
-            var systemUnderTest = new FeatureService(_mockRepository.Object);
             Assert.ThrowsAsync<FeatureAlreadyExistsException>(async () =>
             {
-                await systemUnderTest.Create(new CreateFeatureRequest
+                await _systemUnderTest.Create(new CreateFeatureRequest
                 {
                     Description = "random new description",
                     Hypothesis = "random hypo",
@@ -62,8 +87,7 @@ namespace Feature.Manager.UnitTest.Features
         [Test]
         public async Task CreateReturnsNewlyCreatedDataIfNotDuplicate()
         {
-            var systemUnderTest = new FeatureService(_mockRepository.Object);
-            var response = await systemUnderTest.Create(new CreateFeatureRequest
+            var response = await _systemUnderTest.Create(new CreateFeatureRequest
             {
                 Description = "description",
                 Hypothesis = "hypothesis",
@@ -79,16 +103,63 @@ namespace Feature.Manager.UnitTest.Features
         [Test]
         public async Task CreateThrowsFeatureCreatingExceptionIfCreationFailsTest()
         {
-            var systemUnderTest = new FeatureService(_mockRepository.Object);
             Assert.ThrowsAsync<FeatureCreatingFailedException>(async () =>
             {
-                await systemUnderTest.Create(new CreateFeatureRequest
+                await _systemUnderTest.Create(new CreateFeatureRequest
                 {
                     Description = "description",
                     Hypothesis = "hypothesis",
                     FeatId = "TEST-1"
                 });
             });
+        }
+
+        [Test]
+        public async Task ResetFeatureTokenThrowsErrorIfFeatureDoesNotExist()
+        {
+            Assert.ThrowsAsync<FeatureNotFoundException>(() => _systemUnderTest.ResetFeatureToken("TEST-124"));
+        }
+
+        [Test]
+        public async Task ResetFeatureTokenThrowsErrorIfResettingFails()
+        {
+            Assert.ThrowsAsync<FeatureTokenResetFailedException>(async () =>
+            {
+                await _systemUnderTest.ResetFeatureToken("TEST-2");
+            });
+        }
+
+        [Test]
+        public async Task ResetFeatureTokenReturnsNewData()
+        {
+            var originalData = await _mockRepository.Object.FindByFeatId("TEST-123");
+            var result = await _systemUnderTest.ResetFeatureToken("TEST-123");
+            Assert.AreNotSame(result.ExperimentToken, originalData.ExperimentToken);
+        }
+
+        [Test]
+        public async Task GetFeatureByFeatIdReturnsDataFromRepo()
+        {
+            var response = await _systemUnderTest.GetFeatureByFeatId("TEST-123");
+            Assert.NotNull(response);
+            var mockData = await _mockRepository.Object.FindByFeatId("TEST-123");
+            Assert.AreSame(mockData.Description, response.Description);
+            Assert.AreSame(mockData.ExperimentToken, response.ExperimentToken);
+            Assert.AreSame(mockData.FeatId, response.FeatId);
+            Assert.AreSame(mockData.Id, response.Id);
+        }
+
+        [Test]
+        public async Task GetFeatureByFeatIdReturnsNullIfNotFound()
+        {
+            var response = await _systemUnderTest.GetFeatureByFeatId("TEST-5555");
+            Assert.Null(response);
+        }
+
+        [Test]
+        public async Task GetFeatureByFeatIdHandlesExceptions()
+        {
+            Assert.ThrowsAsync<UnknownDbException>(async () => await _systemUnderTest.GetFeatureByFeatId("TEST-3"));
         }
     }
 }
