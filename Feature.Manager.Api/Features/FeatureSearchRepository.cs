@@ -21,7 +21,7 @@ namespace Feature.Manager.Api.Features
 
         public Task<List<Feature>> SearchFeatureByFeatId(string partialFeatId)
         {
-            return _db.Features.Where(x => x.FeatId.StartsWith(partialFeatId)).ToListAsync();
+            return _db.Features.AsNoTracking().Where(x => x.FeatId.StartsWith(partialFeatId)).ToListAsync();
         }
     }
 }

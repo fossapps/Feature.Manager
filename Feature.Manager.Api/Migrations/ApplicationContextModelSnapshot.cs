@@ -65,11 +65,11 @@ namespace Feature.Manager.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("ExperimentToken")
+                    b.Property<string>("FeatId")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("FeatId")
+                    b.Property<string>("FeatureToken")
                         .IsRequired()
                         .HasColumnType("text");
 

@@ -16,6 +16,6 @@ namespace Feature.Manager.Api.Features
         public string FeatId { set; get; }
 
         [Required]
-        public string ExperimentToken { set; get; }
+        public string FeatureToken { set; get; }
     }
 }

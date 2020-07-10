@@ -32,7 +32,7 @@ namespace Feature.Manager.Api.Migrations
                     Hypothesis = table.Column<string>(nullable: false),
                     Description = table.Column<string>(nullable: false),
                     FeatId = table.Column<string>(nullable: false),
-                    ExperimentToken = table.Column<string>(nullable: false)
+                    FeatureToken = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {

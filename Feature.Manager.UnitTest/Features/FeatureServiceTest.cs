@@ -22,7 +22,7 @@ namespace Feature.Manager.UnitTest.Features
                 Description = "test description",
                 Hypothesis = "test hypo",
                 Id = "test-id",
-                ExperimentToken = "exp-token",
+                FeatureToken = "exp-token",
                 FeatId = "TEST-123"
             });
             repo.Setup(x => x.FindByFeatId("TEST-2")).ReturnsAsync(new Api.Features.Feature
@@ -30,7 +30,7 @@ namespace Feature.Manager.UnitTest.Features
                 Description = "test description cant reset token",
                 Hypothesis = "test hypo",
                 Id = "test-id",
-                ExperimentToken = "exp-token",
+                FeatureToken = "exp-token",
                 FeatId = "TEST-123"
             });
             repo.Setup(x => x.FindByFeatId("TEST-3")).ThrowsAsync(new InvalidCastException());
@@ -48,7 +48,7 @@ namespace Feature.Manager.UnitTest.Features
                         Hypothesis = request.Hypothesis,
                         FeatId = request.FeatId,
                         Id = uuid.GenerateUuId(),
-                        ExperimentToken = uuid.GenerateUuId()
+                        FeatureToken = uuid.GenerateUuId()
                     };
                 });
             _mockRepository = repo;
@@ -63,7 +63,7 @@ namespace Feature.Manager.UnitTest.Features
                         Description = "rand description",
                         Hypothesis = "rand hypo",
                         Id = uuid.GenerateUuId(),
-                        ExperimentToken = newToken,
+                        FeatureToken = newToken,
                         FeatId = id,
                     };
                 });
@@ -93,7 +93,7 @@ namespace Feature.Manager.UnitTest.Features
                 Hypothesis = "hypothesis",
                 FeatId = "TEST-124"
             });
-            Assert.NotNull(response.ExperimentToken);
+            Assert.NotNull(response.FeatureToken);
             Assert.NotNull(response.Id);
             Assert.AreEqual("TEST-124", response.FeatId);
             Assert.AreEqual("hypothesis", response.Hypothesis);
@@ -134,7 +134,7 @@ namespace Feature.Manager.UnitTest.Features
         {
             var originalData = await _mockRepository.Object.FindByFeatId("TEST-123");
             var result = await _systemUnderTest.ResetFeatureToken("TEST-123");
-            Assert.AreNotSame(result.ExperimentToken, originalData.ExperimentToken);
+            Assert.AreNotSame(result.FeatureToken, originalData.FeatureToken);
         }
 
         [Test]
@@ -144,7 +144,7 @@ namespace Feature.Manager.UnitTest.Features
             Assert.NotNull(response);
             var mockData = await _mockRepository.Object.FindByFeatId("TEST-123");
             Assert.AreSame(mockData.Description, response.Description);
-            Assert.AreSame(mockData.ExperimentToken, response.ExperimentToken);
+            Assert.AreSame(mockData.FeatureToken, response.FeatureToken);
             Assert.AreSame(mockData.FeatId, response.FeatId);
             Assert.AreSame(mockData.Id, response.Id);
         }
