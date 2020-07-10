@@ -1,5 +1,7 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Feature.Manager.Api.FeatureRuns
 {
@@ -7,21 +9,15 @@ namespace Feature.Manager.Api.FeatureRuns
     {
         public string Id { set; get; }
         public int Allocation { set; get; }
+
+        [Required]
         public string FeatId { set; get; }
         public DateTime StartAt { set; get; }
         public DateTime? EndAt { set; get; }
-        public string RunToken { set; get; }
-        public string StopResultString
-        {
-            get => StopResult.ToString();
-            set
-            {
-                Enum.TryParse(value, out StopResult result);
-                StopResult = result;
-            }
-        }
 
-        [NotMapped]
+        [Required]
+        public string RunToken { set; get; }
+
         public StopResult StopResult { set; get; }
     }
 

@@ -1,6 +1,7 @@
 using Feature.Manager.Api.Configs;
 using Feature.Manager.Api.FeatureRuns;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Options;
 using Npgsql;
 
@@ -38,6 +39,11 @@ namespace Feature.Manager.Api.Models
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            builder.Entity<FeatureRun>().HasIndex(x => x.RunToken);
+            builder.Entity<FeatureRun>().HasIndex(x => x.StartAt);
+            builder.Entity<FeatureRun>().HasIndex(x => x.EndAt);
+            builder.Entity<FeatureRun>().Property(x => x.StopResult).HasConversion(new EnumToStringConverter<StopResult>());
+            builder.Entity<Features.Feature>().HasIndex(x => x.FeatId);
         }
     }
 }

@@ -17,10 +17,6 @@
       <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc2" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Migrations" />
-    </ItemGroup>
-
     <Target Name="Install githooks" BeforeTargets="Build">
         <Exec Command="cp ../hooks/* ../.git/hooks/" />
     </Target>

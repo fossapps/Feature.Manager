@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Tests
+namespace Feature.Manager.UnitTest
 {
     public class Tests
     {
