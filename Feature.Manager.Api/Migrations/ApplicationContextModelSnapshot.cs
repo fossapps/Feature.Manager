@@ -42,7 +42,6 @@ namespace Feature.Manager.Api.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("StopResult")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");

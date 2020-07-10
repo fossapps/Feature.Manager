@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Feature.Manager.Api.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20200710134338_InitialCreate")]
+    [Migration("20200710162747_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -44,7 +44,6 @@ namespace Feature.Manager.Api.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("StopResult")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");

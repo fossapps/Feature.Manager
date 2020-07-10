@@ -17,7 +17,7 @@ namespace Feature.Manager.Api.Migrations
                     StartAt = table.Column<DateTime>(nullable: false),
                     EndAt = table.Column<DateTime>(nullable: true),
                     RunToken = table.Column<string>(nullable: false),
-                    StopResult = table.Column<string>(nullable: false)
+                    StopResult = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

@@ -1,3 +1,4 @@
+using Feature.Manager.Api.FeatureRuns;
 using Feature.Manager.Api.Features;
 using Feature.Manager.Api.Models;
 using Feature.Manager.Api.Uuid;
@@ -14,6 +15,8 @@ namespace Feature.Manager.Api.StartupExtensions
             services.AddScoped<IFeatureService, FeatureService>();
             services.AddScoped<IFeatureRepository, FeatureRepository>();
             services.AddScoped<IFeatureSearchRepository, FeatureSearchRepository>();
+            services.AddScoped<IFeatureRunRepository, FeatureRunRepository>();
+            services.AddScoped<IFeatureRunService, FeatureRunService>();
         }
     }
 }

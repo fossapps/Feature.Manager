@@ -31,15 +31,19 @@ namespace Feature.Manager.Api.FeatureRuns
 
         public async Task<FeatureRun> CreateFeatureRun(CreateFeatureRunRequest request)
         {
-            var response = await _db.FeatureRuns.AddAsync(new FeatureRun
+            var run = new FeatureRun
             {
                 Allocation = request.Allocation,
-                EndAt = request.EndAt,
-                StartAt = request.StartAt,
+                StartAt = request.StartAt.ToUniversalTime(),
                 FeatId = request.FeatId,
                 Id = _uuidService.GenerateUuId(),
                 RunToken = _uuidService.GenerateUuId(),
-            });
+            };
+            if (request.EndAt.HasValue)
+            {
+                run.EndAt = request.EndAt.Value.ToUniversalTime();
+            }
+            var response = await _db.FeatureRuns.AddAsync(run);
             await _db.SaveChangesAsync();
             return response.Entity;
         }
@@ -55,7 +59,7 @@ namespace Feature.Manager.Api.FeatureRuns
             _db.Attach(featureRun);
             Enum.TryParse(request.StopResult, out StopResult stopResult);
             featureRun.StopResult = stopResult;
-            featureRun.EndAt = DateTime.Now;
+            featureRun.EndAt = DateTime.Now.ToUniversalTime();
             await _db.SaveChangesAsync();
             return featureRun;
         }
@@ -70,7 +74,8 @@ namespace Feature.Manager.Api.FeatureRuns
             return await _db
                 .FeatureRuns
                 .AsNoTracking()
-                .Where(x => (DateTime.Now > x.StartAt && DateTime.Now < x.EndAt) || x.StopResult == StopResult.AllB)
+                .Where(x => x.StartAt < DateTime.Now)
+                .Where(x => x.EndAt == null || x.StopResult == StopResult.AllB || x.EndAt > DateTime.Now)
                 .Join(_db.Features, run => run.FeatId, feature => feature.FeatId, (run, feature) => new RunningFeature
                 {
                     Allocation = run.Allocation,

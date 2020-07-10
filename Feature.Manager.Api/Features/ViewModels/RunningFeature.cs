@@ -1,3 +1,4 @@
+using System;
 using Feature.Manager.Api.FeatureRuns;
 
 namespace Feature.Manager.Api.Features.ViewModels
@@ -9,6 +10,6 @@ namespace Feature.Manager.Api.Features.ViewModels
         public string FeatureId { set; get; }
         public string RunId { set; get; }
         public string RunToken { set; get; }
-        public StopResult RunStatus { set; get; }
+        public StopResult? RunStatus { set; get; }
     }
 }

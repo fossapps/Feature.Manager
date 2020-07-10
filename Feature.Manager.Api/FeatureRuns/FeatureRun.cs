@@ -1,7 +1,5 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Feature.Manager.Api.FeatureRuns
 {
@@ -18,7 +16,7 @@ namespace Feature.Manager.Api.FeatureRuns
         [Required]
         public string RunToken { set; get; }
 
-        public StopResult StopResult { set; get; }
+        public StopResult? StopResult { set; get; }
     }
 
     public enum StopResult
