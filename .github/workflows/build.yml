@@ -3,8 +3,8 @@ name: Build
 on: [push]
 
 env:
-  SERVICE_NAME: micro.starter
-  SERVICE_NAME_CAPITALIZED: Micro.Starter
+  SERVICE_NAME: feature.manager
+  SERVICE_NAME_CAPITALIZED: Feature.Manager
 jobs:
   build:
     runs-on: ubuntu-latest
