@@ -119,6 +119,13 @@ namespace Feature.Manager.Api.FeatureRuns
                 var result = await _featureRunService.StopFeatureRun(request);
                 return Ok(result);
             }
+            catch (FeatureRunAlreadyStoppedException)
+            {
+                return BadRequest(new ProblemDetails
+                {
+                    Title = "Run Already stopped"
+                });
+            }
             catch (InvalidStopResultValueException)
             {
                 return BadRequest(new ProblemDetails

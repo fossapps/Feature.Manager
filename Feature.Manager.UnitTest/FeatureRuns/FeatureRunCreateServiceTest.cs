@@ -75,6 +75,10 @@ namespace Feature.Manager.UnitTest.FeatureRuns
             {
                 MakeFeatureRun(StopResult.AllB, "APP-5", DateTime.Now.Subtract(TimeSpan.FromHours(12)))
             });
+            mock.Setup(x => x.GetRunsForFeatureByFeatId("APP-6")).ReturnsAsync(new List<FeatureRun>
+            {
+                MakeFeatureRun(StopResult.AllA, "APP-6", DateTime.Now.Subtract(TimeSpan.FromHours(12)))
+            });
             mock.Setup(x => x.GetRunsForFeatureByFeatId("APP-19")).ReturnsAsync(new List<FeatureRun>());
             _mock = mock;
             var featureRepository = new Mock<IFeatureRepository>();
@@ -116,19 +120,35 @@ namespace Feature.Manager.UnitTest.FeatureRuns
                     StartAt = DateTime.Now,
                     FeatId = "APP-2"
                 }));
+            Assert.ThrowsAsync<FeatureAlreadyRunningException>(() => _featureRunService.CreateFeatureRun(
+                new CreateFeatureRunRequest
+                {
+                    Allocation = 100,
+                    EndAt = DateTime.Now.Add(TimeSpan.FromDays(20)),
+                    StartAt = DateTime.Now,
+                    FeatId = "APP-5"
+                }));
         }
 
         [Test]
         public async Task TestCreatesNewRunWhenNoFeaturesAreRunning()
         {
-            var result = await _featureRunService.CreateFeatureRun(new CreateFeatureRunRequest
+            var app3 = await _featureRunService.CreateFeatureRun(new CreateFeatureRunRequest
             {
                 Allocation = 100,
                 EndAt = DateTime.Now.Add(TimeSpan.FromDays(20)),
                 StartAt = DateTime.Now,
                 FeatId = "APP-3"
             });
-            Assert.NotNull(result);
+            var app6 = await _featureRunService.CreateFeatureRun(new CreateFeatureRunRequest
+            {
+                Allocation = 100,
+                EndAt = DateTime.Now.Add(TimeSpan.FromDays(20)),
+                StartAt = DateTime.Now,
+                FeatId = "APP-6"
+            });
+            Assert.NotNull(app3);
+            Assert.NotNull(app6);
         }
 
         [Test]

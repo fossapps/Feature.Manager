@@ -34,7 +34,7 @@ namespace Feature.Manager.Api.FeatureRuns
             try
             {
                 var runs = await _featureRunRepository.GetRunsForFeatureByFeatId(request.FeatId);
-                if (runs.Any(x => x.EndAt == null))
+                if (runs.Any(x => x.EndAt == null || x.StopResult == StopResult.AllB))
                 {
                     throw new FeatureAlreadyRunningException();
                 }
@@ -82,12 +82,21 @@ namespace Feature.Manager.Api.FeatureRuns
                     throw new FeatureRunNotFoundException();
                 }
 
+                if (result.EndAt?.ToUniversalTime() <= DateTime.UtcNow && result.StopResult != StopResult.AllB)
+                {
+                    throw new FeatureRunAlreadyStoppedException();
+                }
+
                 if (!Enum.TryParse(request.StopResult, out StopResult stopResult))
                 {
                     throw new InvalidStopResultValueException();
                 }
 
                 return await _featureRunRepository.StopFeatureRun(request);
+            }
+            catch (FeatureRunAlreadyStoppedException)
+            {
+                throw;
             }
             catch (FeatureRunNotFoundException)
             {

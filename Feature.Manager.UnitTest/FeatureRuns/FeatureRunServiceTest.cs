@@ -38,6 +38,46 @@ namespace Feature.Manager.UnitTest.FeatureRuns
                 FeatId = "APP-1",
                 RunToken = "RAND-UUID-TOKEN",
             });
+            mock.Setup(x => x.GetById("stopped-run-all-b")).ReturnsAsync(new FeatureRun
+            {
+                Allocation = 100,
+                Id = "stopped-run-all-b",
+                EndAt = DateTime.Now.Subtract(TimeSpan.FromSeconds(5)),
+                StartAt = DateTime.Now.Subtract(TimeSpan.FromDays(2)),
+                StopResult = StopResult.AllB,
+                FeatId = "APP-1",
+                RunToken = "RAND-UUID-TOKEN",
+            });
+            mock.Setup(x => x.GetById("stopped-run-changed-settings")).ReturnsAsync(new FeatureRun
+            {
+                Allocation = 100,
+                Id = "stopped-run-changed-settings",
+                EndAt = DateTime.Now.Subtract(TimeSpan.FromSeconds(5)),
+                StartAt = DateTime.Now.Subtract(TimeSpan.FromDays(2)),
+                StopResult = StopResult.ChangeSettings,
+                FeatId = "APP-1",
+                RunToken = "RAND-UUID-TOKEN",
+            });
+            mock.Setup(x => x.GetById("stopped-run-all-a")).ReturnsAsync(new FeatureRun
+            {
+                Allocation = 100,
+                Id = "stopped-run-all-a",
+                EndAt = DateTime.Now.Subtract(TimeSpan.FromSeconds(5)),
+                StopResult = StopResult.AllA,
+                StartAt = DateTime.Now.Subtract(TimeSpan.FromDays(2)),
+                FeatId = "APP-1",
+                RunToken = "RAND-UUID-TOKEN",
+            });
+            mock.Setup(x => x.GetById("stopped-run-removed-from-code")).ReturnsAsync(new FeatureRun
+            {
+                Allocation = 100,
+                Id = "stopped-run-removed-from-code",
+                EndAt = DateTime.Now.Subtract(TimeSpan.FromSeconds(5)),
+                StopResult = StopResult.Removed,
+                StartAt = DateTime.Now.Subtract(TimeSpan.FromDays(2)),
+                FeatId = "APP-1",
+                RunToken = "RAND-UUID-TOKEN",
+            });
             mock.Setup(x => x.GetById("RUN-UUID-3")).ThrowsAsync(new InvalidCastException());
             mock.Setup(x => x.StopFeatureRun(It.IsAny<StopFeatureRunRequest>())).ReturnsAsync(
                 (StopFeatureRunRequest request) =>
@@ -198,6 +238,36 @@ namespace Feature.Manager.UnitTest.FeatureRuns
             mock.Setup(x => x.GetRunningFeatures()).ThrowsAsync(new InvalidCastException());
             var systemUnderTest = new FeatureRunService(mock.Object, null);
             Assert.ThrowsAsync<UnknownDbException>(() => systemUnderTest.GetRunningFeatures());
+        }
+
+        [Test]
+        public async Task StoppedRunsCantBeStoppedFurther()
+        {
+            Assert.ThrowsAsync<FeatureRunAlreadyStoppedException>(() => _featureRunService.StopFeatureRun(new StopFeatureRunRequest
+            {
+                RunId = "stopped-run-changed-settings",
+                StopResult = "AllB"
+            }));
+            Assert.ThrowsAsync<FeatureRunAlreadyStoppedException>(() => _featureRunService.StopFeatureRun(new StopFeatureRunRequest
+            {
+                RunId = "stopped-run-all-a",
+                StopResult = "AllB"
+            }));
+            Assert.ThrowsAsync<FeatureRunAlreadyStoppedException>(() => _featureRunService.StopFeatureRun(new StopFeatureRunRequest
+            {
+                RunId = "stopped-run-removed-from-code",
+                StopResult = "AllB"
+            }));
+        }
+
+        [Test]
+        public async Task StoppedAllBRunsCanBeChanged()
+        {
+            Assert.DoesNotThrowAsync(() => _featureRunService.StopFeatureRun(new StopFeatureRunRequest
+            {
+                RunId = "stopped-run-all-b",
+                StopResult = "AllA"
+            }));
         }
     }
 }
