@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Feature.Manager.Api.FeatureRuns.Exceptions;
 using Feature.Manager.Api.FeatureRuns.ViewModels;
+using Feature.Manager.Api.Features;
 using Feature.Manager.Api.Features.Exceptions;
 using Feature.Manager.Api.Features.ViewModels;
 
@@ -20,10 +21,12 @@ namespace Feature.Manager.Api.FeatureRuns
     public class FeatureRunService : IFeatureRunService
     {
         private readonly IFeatureRunRepository _featureRunRepository;
+        private readonly IFeatureRepository _featureRepository;
 
-        public FeatureRunService(IFeatureRunRepository featureRunRepository)
+        public FeatureRunService(IFeatureRunRepository featureRunRepository, IFeatureRepository featureRepository)
         {
             _featureRunRepository = featureRunRepository;
+            _featureRepository = featureRepository;
         }
 
         public async Task<FeatureRun> CreateFeatureRun(CreateFeatureRunRequest request)
@@ -36,9 +39,18 @@ namespace Feature.Manager.Api.FeatureRuns
                     throw new FeatureAlreadyRunningException();
                 }
 
+                if (await _featureRepository.FindByFeatId(request.FeatId) == null)
+                {
+                    throw new FeatureNotFoundException();
+                }
+
                 return await _featureRunRepository.CreateFeatureRun(request);
             }
             catch (FeatureAlreadyRunningException)
+            {
+                throw;
+            }
+            catch (FeatureNotFoundException)
             {
                 throw;
             }

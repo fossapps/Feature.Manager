@@ -83,7 +83,7 @@ namespace Feature.Manager.UnitTest.FeatureRuns
             });
             mock.Setup(x => x.GetRunsForFeatureByFeatId("APP-2")).ThrowsAsync(new InvalidCastException());
             _mock = mock;
-            _featureRunService = new FeatureRunService(_mock.Object);
+            _featureRunService = new FeatureRunService(_mock.Object, null);
         }
 
         [Test]
@@ -186,7 +186,7 @@ namespace Feature.Manager.UnitTest.FeatureRuns
                 },
             };
             mock.Setup(x => x.GetRunningFeatures()).ReturnsAsync(mockData);
-            var systemUnderTest = new FeatureRunService(mock.Object);
+            var systemUnderTest = new FeatureRunService(mock.Object, null);
             var result = await systemUnderTest.GetRunningFeatures();
             Assert.AreSame(mockData, result);
         }
@@ -196,7 +196,7 @@ namespace Feature.Manager.UnitTest.FeatureRuns
         {
             var mock = new Mock<IFeatureRunRepository>();
             mock.Setup(x => x.GetRunningFeatures()).ThrowsAsync(new InvalidCastException());
-            var systemUnderTest = new FeatureRunService(mock.Object);
+            var systemUnderTest = new FeatureRunService(mock.Object, null);
             Assert.ThrowsAsync<UnknownDbException>(() => systemUnderTest.GetRunningFeatures());
         }
     }
