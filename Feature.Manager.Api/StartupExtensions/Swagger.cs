@@ -11,6 +11,11 @@ namespace Feature.Manager.Api.StartupExtensions
         {
             services.AddSwaggerGen(c =>
             {
+                c.CustomOperationIds(e =>
+                {
+                    var methodName = e.ActionDescriptor.RouteValues["action"];
+                    return $"{e.ActionDescriptor.RouteValues["controller"]}_{methodName}";
+                });
                 c.ResolveConflictingActions(apiDescription => apiDescription.Last());
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
@@ -23,9 +28,10 @@ namespace Feature.Manager.Api.StartupExtensions
 
         public static void AddSwaggerWithUi(this IApplicationBuilder app)
         {
-            app.UseSwagger();
+            app.UseSwagger(x => x.SerializeAsV2 = true);
             app.UseSwaggerUI(x =>
             {
+                x.DisplayOperationId();
                 x.RoutePrefix = "swagger";
                 x.SwaggerEndpoint("/swagger/v1/swagger.json", "V1");
                 x.RoutePrefix = string.Empty;

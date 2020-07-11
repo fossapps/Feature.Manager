@@ -11,7 +11,7 @@ namespace Feature.Manager.Api.Workers
     {
         private readonly ILogger<Worker> _logger;
 
-        public Worker(ILogger<Worker> logger, IServiceScopeFactory serviceScopeFactory)
+        public Worker(ILogger<Worker> logger)
         {
             _logger = logger;
         }
