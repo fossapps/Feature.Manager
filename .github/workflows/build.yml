@@ -18,7 +18,7 @@ jobs:
           dotnet-version: 3.1.100
 
       - name: Build
-        run:  dotnet build --configuration Release --project $SERVICE_NAME_CAPITALIZED.Api/$SERVICE_NAME_CAPITALIZED.Api.csproj
+        run:  dotnet build --configuration Release ./$SERVICE_NAME_CAPITALIZED.Api/$SERVICE_NAME_CAPITALIZED.Api.csproj
 
   run-unit-tests:
     runs-on: ubuntu-latest
