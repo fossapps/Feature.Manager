@@ -90,18 +90,15 @@ namespace Fossapps.FeatureManager
                 return 'X';
             }
 
-            if (feature.Allocation.Value == 100 || GetBucket(_userDataRepo.GetUserId(), feature.FeatureToken, 100) < feature.Allocation)
+            if (feature.Allocation.Value == 100 || GetBucket(_userDataRepo.GetUserId(), feature.FeatureToken, 100) <= feature.Allocation)
             {
                 var bucket = GetBucket(_userDataRepo.GetUserId(), feature.RunToken, 2);
-                switch (bucket)
+                return bucket switch
                 {
-                    case 1:
-                        return 'A';
-                    case 2:
-                        return 'B';
-                    default:
-                        return 'X';
-                }
+                    1 => 'A',
+                    2 => 'B',
+                    _ => 'X'
+                };
             }
             return 'Z';
         }
