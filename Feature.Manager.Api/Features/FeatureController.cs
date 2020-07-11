@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Feature.Manager.Api.Features.Exceptions;
 using Feature.Manager.Api.Features.ViewModels;
@@ -114,6 +115,9 @@ namespace Feature.Manager.Api.Features
             }
         }
 
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<Feature>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetFeatureList()
         {
             try
