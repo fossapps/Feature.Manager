@@ -113,5 +113,27 @@ namespace Feature.Manager.Api.Features
                 });
             }
         }
+
+        public async Task<IActionResult> GetFeatureList()
+        {
+            try
+            {
+                return Ok(await _featureService.GetAllFeatures());
+            }
+            catch (UnknownDbException)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails
+                {
+                    Title = "unknown error"
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails
+                {
+                    Title = "unknown error"
+                });
+            }
+        }
     }
 }

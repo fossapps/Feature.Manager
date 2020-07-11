@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Feature.Manager.Api.Features.Exceptions;
 using Feature.Manager.Api.Features.ViewModels;
@@ -11,6 +12,7 @@ namespace Feature.Manager.Api.Features
         Task<Feature> Create(CreateFeatureRequest request);
         Task<Feature> ResetFeatureToken(string featId);
         Task<Feature> GetFeatureByFeatId(string featId);
+        Task<List<Feature>> GetAllFeatures();
     }
 
     public class FeatureService : IFeatureService
@@ -72,6 +74,18 @@ namespace Feature.Manager.Api.Features
             try
             {
                 return await _featureRepository.FindByFeatId(featId);
+            }
+            catch (Exception e)
+            {
+                throw new UnknownDbException(e.Message);
+            }
+        }
+
+        public async Task<List<Feature>> GetAllFeatures()
+        {
+            try
+            {
+                return await _featureRepository.All();
             }
             catch (Exception e)
             {
