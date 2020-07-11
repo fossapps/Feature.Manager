@@ -18,7 +18,7 @@ jobs:
           dotnet-version: 3.1.100
 
       - name: Build
-        run:  dotnet build --configuration Release
+        run:  dotnet build --configuration Release --project $SERVICE_NAME_CAPITALIZED.Api/$SERVICE_NAME_CAPITALIZED.Api.csproj
 
   run-unit-tests:
     runs-on: ubuntu-latest
@@ -32,7 +32,7 @@ jobs:
           dotnet-version: 3.1.100
 
       - name: Run Unit Tests
-        run:  dotnet test
+        run:  cd $SERVICE_NAME_CAPITALIZED.UnitTest && dotnet test
 
   build-docker-image:
     runs-on: ubuntu-latest
@@ -72,6 +72,33 @@ jobs:
         run: |
           cd ./${SERVICE_NAME_CAPITALIZED}.UnitTest/ExternalTests
           sh ./postman_tests.sh
+
+  test-sdk:
+    needs: build-docker-image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pull Docker Image
+        uses: actions/checkout@v1
+        with:
+          name: docker-pull
+
+      - name: 'Load Docker Image'
+        run: |
+          TAG=`git rev-parse --short=4 ${GITHUB_SHA}`
+          docker pull fossapps/$SERVICE_NAME:$TAG
+      - name: Spin-up Containers
+        run: |
+          TAG=`git rev-parse --short=4 ${GITHUB_SHA}`
+          TAG=$TAG docker-compose -f ./docker-compose.ci.yml up -d
+      - name: Run Postman Tests
+        run: |
+          cd ./Sdk
+          sh ./generate_sdk.sh
+          cd ../
+          dotnet build
+          cd Sdk.Test
+          dotnet test
 
   publish:
     needs: [ build-docker-image, run-postman-tests ]
