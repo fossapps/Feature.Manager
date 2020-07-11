@@ -128,5 +128,10 @@ namespace Fossapps.FeatureManager
             collection.AddSingleton<IFeatureWorker>(worker);
             collection.AddScoped<FeatureClient>();
         }
+
+        public static bool IsFeatureOn(this FeatureClient instance, string featId)
+        {
+            return instance.GetVariant(featId) == 'B';
+        }
     }
 }
