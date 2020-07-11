@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Fossapps.FeatureManager;
-using FossApps.FeatureManager.Models;
+using Fossapps.FeatureManager.Models;
 using Moq;
 using NUnit.Framework;
 
@@ -50,13 +50,13 @@ namespace Sdk.Test
             var mockWorker = new Mock<IFeatureWorker>();
             mockWorker.Setup(x => x.GetRunningFeatures()).Returns(runningFeatures);
             var mockUserData = new Mock<IUserDataRepo>();
-            mockUserData.Setup(x => x.GetExperimentsForcedA()).Returns(new List<string>
+            mockUserData.Setup(x => x.GetForcedFeaturesA()).Returns(new List<string>
             {
                 "ALL_A-1",
                 "ALL_A-2",
                 "ALL_A-3",
             });
-            mockUserData.Setup(x => x.GetExperimentsForcedB()).Returns(new List<string>
+            mockUserData.Setup(x => x.GetForcedFeaturesB()).Returns(new List<string>
             {
                 "ALL_B-1",
                 "ALL_B-2",
@@ -141,7 +141,7 @@ namespace Sdk.Test
         }
 
         [Test]
-        public void TestFeatureWithOverrideExperimentsToA()
+        public void TestFeatureWithOverrideFeaturesToA()
         {
             var dictionary = new Dictionary<char, int> {['A'] = 0, ['B'] = 0, ['X'] = 0, ['Z'] = 0};
             var client = new FeatureClient(_featureWorker, _userDataRepo);
@@ -167,7 +167,7 @@ namespace Sdk.Test
         }
 
         [Test]
-        public void TestFeatureWithOverrideExperimentsToB()
+        public void TestFeatureWithOverrideFeaturesToB()
         {
             var dictionary = new Dictionary<char, int> {['A'] = 0, ['B'] = 0, ['X'] = 0, ['Z'] = 0};
             var client = new FeatureClient(_featureWorker, _userDataRepo);
