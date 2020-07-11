@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using FossApps.FeatureManager;
 using FossApps.FeatureManager.Models;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Fossapps.FeatureManager
 {
@@ -60,11 +59,6 @@ namespace Fossapps.FeatureManager
         }
     }
 
-    public interface IUserDataRepo
-    {
-        public string GetUserId();
-    }
-
     // this is scoped
     public class FeatureClient
     {
@@ -83,6 +77,14 @@ namespace Fossapps.FeatureManager
         }
         public char GetVariant(string featId)
         {
+            if (_userDataRepo.GetExperimentsForcedB().Any(x => x == featId))
+            {
+                return 'B';
+            }
+            if (_userDataRepo.GetExperimentsForcedA().Any(x => x == featId))
+            {
+                return 'A';
+            }
             var feature = GetFeatureById(featId);
 
             if (feature == null || !feature.Allocation.HasValue || string.IsNullOrEmpty(feature.RunToken) || string.IsNullOrEmpty(feature.FeatureToken))
@@ -115,23 +117,6 @@ namespace Fossapps.FeatureManager
             var bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(tokens));
             var number = BitConverter.ToUInt64(bytes);
             return (int) (number % (ulong) numberOfBuckets) + 1;
-        }
-    }
-
-    public static class SetupFeatures
-    {
-        public static void SetupFeatureClients<TUserDataImplementation>(this IServiceCollection collection, string endpoint, TimeSpan syncInterval) where TUserDataImplementation : class, IUserDataRepo
-        {
-            var worker = new FeatureWorker(endpoint, syncInterval);
-            worker.Init();
-            collection.AddScoped<IUserDataRepo, TUserDataImplementation>();
-            collection.AddSingleton<IFeatureWorker>(worker);
-            collection.AddScoped<FeatureClient>();
-        }
-
-        public static bool IsFeatureOn(this FeatureClient instance, string featId)
-        {
-            return instance.GetVariant(featId) == 'B';
         }
     }
 }

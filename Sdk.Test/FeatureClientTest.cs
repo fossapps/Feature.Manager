@@ -50,6 +50,18 @@ namespace Sdk.Test
             var mockWorker = new Mock<IFeatureWorker>();
             mockWorker.Setup(x => x.GetRunningFeatures()).Returns(runningFeatures);
             var mockUserData = new Mock<IUserDataRepo>();
+            mockUserData.Setup(x => x.GetExperimentsForcedA()).Returns(new List<string>
+            {
+                "ALL_A-1",
+                "ALL_A-2",
+                "ALL_A-3",
+            });
+            mockUserData.Setup(x => x.GetExperimentsForcedB()).Returns(new List<string>
+            {
+                "ALL_B-1",
+                "ALL_B-2",
+                "ALL_B-3",
+            });
             mockUserData.Setup(x => x.GetUserId()).Returns(GetUuid);
             _userDataRepo = mockUserData.Object;
             _featureWorker = mockWorker.Object;
@@ -126,6 +138,58 @@ namespace Sdk.Test
             Assert.AreEqual(0, dictionary['Z']);
             Assert.AreEqual(0, dictionary['A']);
             Assert.AreEqual(1000000, dictionary['B']);
+        }
+
+        [Test]
+        public void TestFeatureWithOverrideExperimentsToA()
+        {
+            var dictionary = new Dictionary<char, int> {['A'] = 0, ['B'] = 0, ['X'] = 0, ['Z'] = 0};
+            var client = new FeatureClient(_featureWorker, _userDataRepo);
+            for (var i = 0; i < 100; i++)
+            {
+                var variant = client.GetVariant("ALL_A-1");
+                dictionary[variant] = dictionary[variant] + 1;
+            }
+            for (var i = 0; i < 100; i++)
+            {
+                var variant = client.GetVariant("ALL_A-2");
+                dictionary[variant] = dictionary[variant] + 1;
+            }
+            for (var i = 0; i < 100; i++)
+            {
+                var variant = client.GetVariant("ALL_A-3");
+                dictionary[variant] = dictionary[variant] + 1;
+            }
+            Assert.AreEqual(300, dictionary['A']);
+            Assert.AreEqual(0, dictionary['B']);
+            Assert.AreEqual(0, dictionary['X']);
+            Assert.AreEqual(0, dictionary['Z']);
+        }
+
+        [Test]
+        public void TestFeatureWithOverrideExperimentsToB()
+        {
+            var dictionary = new Dictionary<char, int> {['A'] = 0, ['B'] = 0, ['X'] = 0, ['Z'] = 0};
+            var client = new FeatureClient(_featureWorker, _userDataRepo);
+            for (var i = 0; i < 100; i++)
+            {
+                var variant = client.GetVariant("ALL_B-1");
+                dictionary[variant] = dictionary[variant] + 1;
+            }
+            for (var i = 0; i < 100; i++)
+            {
+                var variant = client.GetVariant("ALL_B-2");
+                dictionary[variant] = dictionary[variant] + 1;
+            }
+            for (var i = 0; i < 100; i++)
+            {
+                var variant = client.GetVariant("ALL_B-3");
+                dictionary[variant] = dictionary[variant] + 1;
+            }
+            Assert.AreEqual(300, dictionary['B']);
+            Assert.AreEqual(0, dictionary['A']);
+            Assert.AreEqual(0, dictionary['X']);
+            Assert.AreEqual(0, dictionary['Z']);
         }
     }
 }
