@@ -22,7 +22,7 @@ jobs:
           docker pull fossapps/$SERVICE_NAME:$TAG
       - name: Spin-up Containers
         run: |
-          TAG="${GITHUB_REF/refs\/tags\//}"
+          TAG="${GITHUB_REF/refs\/tags\/v/}"
           TAG=$TAG docker-compose -f ./docker-compose.ci.yml up -d
       - name: Generate SDKs
         run: |
@@ -31,7 +31,7 @@ jobs:
       - name: pack
         run: |
           cd Sdk
-          TAG="${GITHUB_REF/refs\/tags\//}"
+          TAG="${GITHUB_REF/refs\/tags\/v/}"
           dotnet pack --include-symbols -p:PackageVersion=$TAG -c Release
       - name: release
         run: |
