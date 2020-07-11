@@ -167,6 +167,13 @@ namespace Feature.Manager.Api.FeatureRuns
                     Title = "Feature is already running"
                 });
             }
+            catch (FeatureNotFoundException)
+            {
+                return BadRequest(new ProblemDetails
+                {
+                    Title = "feature id is invalid"
+                });
+            }
             catch (UnknownDbException)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails

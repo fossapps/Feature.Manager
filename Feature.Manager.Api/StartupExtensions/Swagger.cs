@@ -11,6 +11,7 @@ namespace Feature.Manager.Api.StartupExtensions
         {
             services.AddSwaggerGen(c =>
             {
+                c.DescribeAllEnumsAsStrings();
                 c.CustomOperationIds(e =>
                 {
                     var methodName = e.ActionDescriptor.RouteValues["action"];

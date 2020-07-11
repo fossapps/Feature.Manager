@@ -101,7 +101,7 @@ jobs:
           dotnet test
 
   publish:
-    needs: [ build-docker-image, run-postman-tests ]
+    needs: [ build-docker-image, run-postman-tests, test-sdk ]
     runs-on: ubuntu-latest
 
     steps:

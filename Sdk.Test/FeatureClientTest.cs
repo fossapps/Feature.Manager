@@ -36,6 +36,15 @@ namespace Sdk.Test
                     FeatureToken = GetUuid(),
                     RunId = GetUuid(),
                     RunToken = GetUuid()
+                },
+                new RunningFeature
+                {
+                    Allocation = 50,
+                    FeatureId = "APP-3",
+                    FeatureToken = GetUuid(),
+                    RunId = GetUuid(),
+                    RunStatus = "AllB",
+                    RunToken = GetUuid()
                 }
             };
             var mockWorker = new Mock<IFeatureWorker>();
@@ -100,6 +109,23 @@ namespace Sdk.Test
             var biasPerc = ((float) (variantA - variantB) / totalAllocated) * 100;
             Assert.LessOrEqual(biasPerc, 0.5);
             Assert.LessOrEqual(biasWithZPerc, 0.5);
+        }
+
+        [Test]
+        public void TestFeatureWithAllBAlwaysReturnsB()
+        {
+            var dictionary = new Dictionary<char, int> {['A'] = 0, ['B'] = 0, ['X'] = 0, ['Z'] = 0};
+            var client = new FeatureClient(_featureWorker, _userDataRepo);
+            for (var i = 0; i < 1000000; i++)
+            {
+                var variant = client.GetVariant("APP-3");
+                dictionary[variant] = dictionary[variant] + 1;
+            }
+
+            Assert.AreEqual(0, dictionary['X']);
+            Assert.AreEqual(0, dictionary['Z']);
+            Assert.AreEqual(0, dictionary['A']);
+            Assert.AreEqual(1000000, dictionary['B']);
         }
     }
 }
