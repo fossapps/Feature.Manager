@@ -4,8 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using FossApps.FeatureManager;
-using FossApps.FeatureManager.Models;
+using Fossapps.FeatureManager.Models;
 
 namespace Fossapps.FeatureManager
 {
@@ -18,13 +17,13 @@ namespace Fossapps.FeatureManager
     public class FeatureWorker : IFeatureWorker
     {
         private readonly TimeSpan _syncInterval;
-        private readonly FossApps.FeatureManager.FeatureManager _manager;
+        private readonly FeatureManager _manager;
         private IEnumerable<RunningFeature> _features;
 
         public FeatureWorker(string endpoint, TimeSpan syncInterval)
         {
             _syncInterval = syncInterval;
-            _manager = new FossApps.FeatureManager.FeatureManager(new Uri(endpoint));
+            _manager = new FeatureManager(new Uri(endpoint));
         }
 
         public IEnumerable<RunningFeature> GetRunningFeatures()
@@ -77,11 +76,11 @@ namespace Fossapps.FeatureManager
         }
         public char GetVariant(string featId)
         {
-            if (_userDataRepo.GetExperimentsForcedB().Any(x => x == featId))
+            if (_userDataRepo.GetForcedFeaturesB().Any(x => x == featId))
             {
                 return 'B';
             }
-            if (_userDataRepo.GetExperimentsForcedA().Any(x => x == featId))
+            if (_userDataRepo.GetForcedFeaturesA().Any(x => x == featId))
             {
                 return 'A';
             }

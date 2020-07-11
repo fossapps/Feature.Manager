@@ -8,12 +8,12 @@ namespace Fossapps.FeatureManager
     {
         public string GetUserId();
 
-        public IEnumerable<string> GetExperimentsForcedA()
+        public IEnumerable<string> GetForcedFeaturesA()
         {
             return new List<string>();
         }
 
-        public IEnumerable<string> GetExperimentsForcedB()
+        public IEnumerable<string> GetForcedFeaturesB()
         {
             return new List<string>();
         }
@@ -28,7 +28,7 @@ namespace Fossapps.FeatureManager
             _contextAccessor = contextAccessor;
         }
 
-        public IEnumerable<string> GetExperimentsForcedA()
+        public IEnumerable<string> GetForcedFeaturesA()
         {
             if (!_contextAccessor.HttpContext.Request.Headers.TryGetValue("X-Forced-Features-A", out var features))
             {
@@ -38,7 +38,7 @@ namespace Fossapps.FeatureManager
             return features.ToString().Split(",").ToList();
         }
 
-        public IEnumerable<string> GetExperimentsForcedB()
+        public IEnumerable<string> GetForcedFeaturesB()
         {
             if (!_contextAccessor.HttpContext.Request.Headers.TryGetValue("X-Forced-Features-B", out var features))
             {
