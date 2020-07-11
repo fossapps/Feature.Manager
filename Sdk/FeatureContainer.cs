@@ -90,6 +90,11 @@ namespace Fossapps.FeatureManager
                 return 'X';
             }
 
+            if (feature.RunStatus == "AllB")
+            {
+                return 'B';
+            }
+
             if (feature.Allocation.Value == 100 || GetBucket(_userDataRepo.GetUserId(), feature.FeatureToken, 100) <= feature.Allocation)
             {
                 var bucket = GetBucket(_userDataRepo.GetUserId(), feature.RunToken, 2);
