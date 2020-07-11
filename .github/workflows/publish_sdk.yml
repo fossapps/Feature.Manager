@@ -18,7 +18,7 @@ jobs:
           dotnet-version: 3.1.101
       - name: 'Load Docker Image'
         run: |
-          TAG="${GITHUB_REF/refs\/tags\//}"
+          TAG="${GITHUB_REF/refs\/tags\/v/}"
           docker pull fossapps/$SERVICE_NAME:$TAG
       - name: Spin-up Containers
         run: |
