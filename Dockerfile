@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine3.9 as build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine as build
 WORKDIR /app
 COPY . .
 RUN dotnet restore
