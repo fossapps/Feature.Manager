@@ -47,6 +47,35 @@ jobs:
           docker build . -t fossapps/$SERVICE_NAME --build-arg VERSION=$TAG
           docker tag fossapps/$SERVICE_NAME fossapps/$SERVICE_NAME:$TAG
           docker push fossapps/$SERVICE_NAME:$TAG
+
+  generate-sdks:
+    needs: build-docker-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: pull docker image
+        uses: actions/checkout
+        with:
+          name: docker-pull
+      - name: "Load docker image"
+        run: |
+          TAG=`git rev-parse --short=4 ${GITHUB_SHA}`
+          docker pull fossapps/$SERVICE_NAME:$TAG
+      - name: Spin-up Containers
+          TAG=`git rev-parse --short=4 ${GITHUB_SHA}`
+          TAG=$TAG docker-compose -f ./docker-compose.ci.yml up -d
+      - name: Generate SDKs
+        run: |
+          cd ./Sdk
+          sh ./generate_sdk.sh
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.100
+      - name: pack
+        run: |
+          dotnet pack
+          ls
+
   run-postman-tests:
     needs: build-docker-image
     runs-on: ubuntu-latest
