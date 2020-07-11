@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Feature.Manager.Api.StartupExtensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -23,7 +24,10 @@ namespace Feature.Manager.Api
             services.AddMetrics();
             services.ConfigureRequiredDependencies();
             services.ConfigureHealthChecks();
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(x =>
+            {
+                x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
             services.ConfigureSwagger();
             services.RegisterWorker();
         }
