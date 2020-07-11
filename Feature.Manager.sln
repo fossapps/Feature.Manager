@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Feature.Manager.Api", "Feat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Feature.Manager.UnitTest", "Feature.Manager.UnitTest\Feature.Manager.UnitTest.csproj", "{4384EF12-1CE6-4672-BC61-2F20F83D2744}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sdk", "Sdk\Sdk.csproj", "{2D5EAAA2-AFF8-4DC6-8AD0-7D979C09EF6D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sdk.Test", "Sdk.Test\Sdk.Test.csproj", "{9ED47FD6-E09C-4A29-AD7A-F3DBCD112390}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{4384EF12-1CE6-4672-BC61-2F20F83D2744}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4384EF12-1CE6-4672-BC61-2F20F83D2744}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4384EF12-1CE6-4672-BC61-2F20F83D2744}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D5EAAA2-AFF8-4DC6-8AD0-7D979C09EF6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D5EAAA2-AFF8-4DC6-8AD0-7D979C09EF6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D5EAAA2-AFF8-4DC6-8AD0-7D979C09EF6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D5EAAA2-AFF8-4DC6-8AD0-7D979C09EF6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9ED47FD6-E09C-4A29-AD7A-F3DBCD112390}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9ED47FD6-E09C-4A29-AD7A-F3DBCD112390}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9ED47FD6-E09C-4A29-AD7A-F3DBCD112390}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9ED47FD6-E09C-4A29-AD7A-F3DBCD112390}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

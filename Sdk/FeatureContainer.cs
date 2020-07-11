@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using FossApps.FeatureManager;
 using FossApps.FeatureManager.Models;
@@ -9,7 +11,12 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Fossapps.FeatureManager
 {
     // this is singleton
-    public class FeatureWorker
+    public interface IFeatureWorker
+    {
+        IEnumerable<RunningFeature> GetRunningFeatures();
+        void Init();
+    }
+    public class FeatureWorker : IFeatureWorker
     {
         private readonly TimeSpan _syncInterval;
         private readonly FossApps.FeatureManager.FeatureManager _manager;
@@ -61,24 +68,48 @@ namespace Fossapps.FeatureManager
     // this is scoped
     public class FeatureClient
     {
-        private readonly FeatureWorker _featureWorker;
+        private readonly IFeatureWorker _featureWorker;
         private readonly IUserDataRepo _userDataRepo;
 
-        public FeatureClient(FeatureWorker featureWorker, IUserDataRepo userDataRepo)
+        public FeatureClient(IFeatureWorker featureWorker, IUserDataRepo userDataRepo)
         {
             _featureWorker = featureWorker;
             _userDataRepo = userDataRepo;
         }
 
-        public bool IsFeatureOn(string featId)
+        private RunningFeature GetFeatureById(string featId)
         {
-            var feature = _featureWorker.GetRunningFeatures().FirstOrDefault(x => x.FeatureId == featId);
-            if (feature == null)
+            return _featureWorker.GetRunningFeatures().FirstOrDefault(x => x.FeatureId == featId);
+        }
+        public char GetVariant(string featId)
+        {
+            var feature = GetFeatureById(featId);
+
+            if (feature == null || !feature.Allocation.HasValue || string.IsNullOrEmpty(feature.RunToken) || string.IsNullOrEmpty(feature.FeatureToken))
             {
-                return false;
+                return 'X';
             }
 
-            return true;
+            if (feature.Allocation.Value == 100 || GetBucket(_userDataRepo.GetUserId(), feature.FeatureToken, 100) <= feature.Allocation)
+            {
+                var bucket = GetBucket(_userDataRepo.GetUserId(), feature.RunToken, 2);
+                return bucket switch
+                {
+                    1 => 'A',
+                    2 => 'B',
+                    _ => 'X'
+                };
+            }
+            return 'Z';
+        }
+
+        private static int GetBucket(string userToken, string bucketToken, int numberOfBuckets)
+        {
+            var tokens = (userToken.Trim() + bucketToken.Trim()).Replace("-", "").ToLower();
+            using var md5 = MD5.Create();
+            var bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(tokens));
+            var number = BitConverter.ToUInt64(bytes);
+            return (int) (number % (ulong) numberOfBuckets) + 1;
         }
     }
 
@@ -89,7 +120,7 @@ namespace Fossapps.FeatureManager
             var worker = new FeatureWorker(endpoint, syncInterval);
             worker.Init();
             collection.AddScoped<IUserDataRepo, TUserDataImplementation>();
-            collection.AddSingleton(worker);
+            collection.AddSingleton<IFeatureWorker>(worker);
             collection.AddScoped<FeatureClient>();
         }
     }
