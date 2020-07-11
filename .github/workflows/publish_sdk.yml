@@ -18,11 +18,11 @@ jobs:
           dotnet-version: 3.1.101
       - name: 'Load Docker Image'
         run: |
-          TAG=`git rev-parse --short=4 ${GITHUB_SHA}`
+          TAG="${GITHUB_REF/refs\/tags\//}"
           docker pull fossapps/$SERVICE_NAME:$TAG
       - name: Spin-up Containers
         run: |
-          TAG=`git rev-parse --short=4 ${GITHUB_SHA}`
+          TAG="${GITHUB_REF/refs\/tags\//}"
           TAG=$TAG docker-compose -f ./docker-compose.ci.yml up -d
       - name: Generate SDKs
         run: |
