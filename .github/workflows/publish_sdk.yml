@@ -35,4 +35,5 @@ jobs:
           dotnet pack --include-symbols -p:PackageVersion=$TAG -c Release
       - name: release
         run: |
+          cd Sdk
           dotnet nuget push ./bin/Release/Fossapps.Feature.Manager* -k ${{secrets.NUGET_TOKEN}} -s https://api.nuget.org/v3/index.json
