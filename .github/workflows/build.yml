@@ -48,6 +48,7 @@ jobs:
           docker tag fossapps/$SERVICE_NAME fossapps/$SERVICE_NAME:$TAG
           docker push fossapps/$SERVICE_NAME:$TAG
 
+
   generate-sdks:
     needs: build-docker-image
     runs-on: ubuntu-latest
@@ -56,11 +57,12 @@ jobs:
         uses: actions/checkout
         with:
           name: docker-pull
-      - name: "Load docker image"
+      - name: 'Load Docker Image'
         run: |
           TAG=`git rev-parse --short=4 ${GITHUB_SHA}`
           docker pull fossapps/$SERVICE_NAME:$TAG
       - name: Spin-up Containers
+        run: |
           TAG=`git rev-parse --short=4 ${GITHUB_SHA}`
           TAG=$TAG docker-compose -f ./docker-compose.ci.yml up -d
       - name: Generate SDKs
