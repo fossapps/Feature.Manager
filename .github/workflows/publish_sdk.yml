@@ -1,0 +1,38 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+env:
+  SERVICE_NAME: feature.manager
+  SERVICE_NAME_CAPITALIZED: Feature.Manager
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.101
+      - name: 'Load Docker Image'
+        run: |
+          TAG=`git rev-parse --short=4 ${GITHUB_SHA}`
+          docker pull fossapps/$SERVICE_NAME:$TAG
+      - name: Spin-up Containers
+        run: |
+          TAG=`git rev-parse --short=4 ${GITHUB_SHA}`
+          TAG=$TAG docker-compose -f ./docker-compose.ci.yml up -d
+      - name: Generate SDKs
+        run: |
+          cd ./Sdk
+          sh ./generate_sdk.sh
+      - name: pack
+        run: |
+          cd Sdk
+          TAG="${GITHUB_REF/refs\/tags\//}"
+          dotnet pack --include-symbols -p:PackageVersion=$TAG -c Release
+      - name: release
+        run: |
+          dotnet nuget push ./bin/Release/Fossapps.Feature.Manager* -k ${{secrets.NUGET_TOKEN}} -s https://api.nuget.org/v3/index.json
