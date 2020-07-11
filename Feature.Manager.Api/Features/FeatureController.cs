@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Feature.Manager.Api.Features.Exceptions;
 using Feature.Manager.Api.Features.ViewModels;
@@ -103,6 +104,31 @@ namespace Feature.Manager.Api.Features
                 return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails
                 {
                     Title = "failed creating a new feature"
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails
+                {
+                    Title = "unknown error"
+                });
+            }
+        }
+
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<Feature>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetFeatureList()
+        {
+            try
+            {
+                return Ok(await _featureService.GetAllFeatures());
+            }
+            catch (UnknownDbException)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails
+                {
+                    Title = "unknown error"
                 });
             }
             catch (Exception e)

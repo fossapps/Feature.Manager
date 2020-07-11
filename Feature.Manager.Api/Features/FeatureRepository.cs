@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Feature.Manager.Api.Features.ViewModels;
 using Feature.Manager.Api.Models;
@@ -11,6 +12,7 @@ namespace Feature.Manager.Api.Features
         Task<Feature> FindByFeatId(string featId);
         Task<Feature> CreateFeature(CreateFeatureRequest request);
         Task<Feature> ResetFeatureToken(string featId, string newToken);
+        Task<List<Feature>> All();
     }
     public class FeatureRepository : IFeatureRepository
     {
@@ -49,6 +51,11 @@ namespace Feature.Manager.Api.Features
             feature.FeatureToken = newToken;
             await _db.SaveChangesAsync();
             return feature;
+        }
+
+        public async Task<List<Feature>> All()
+        {
+            return await _db.Features.AsNoTracking().ToListAsync();
         }
     }
 }
