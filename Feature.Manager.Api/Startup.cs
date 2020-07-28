@@ -1,10 +1,12 @@
 using System.Text.Json.Serialization;
+using Feature.Manager.Api.Configs;
 using Feature.Manager.Api.StartupExtensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Feature.Manager.Api
 {
@@ -30,15 +32,17 @@ namespace Feature.Manager.Api
             });
             services.ConfigureSwagger();
             services.RegisterWorker();
+            services.SetupCors(Configuration.GetSection("CorsConfig").Get<CorsConfig>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IOptions<CorsConfig> corsConfig)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseCorsPolicy(corsConfig.Value);
             app.UseRouting();
             app.UseAuthorization();
             app.AddSwaggerWithUi();
