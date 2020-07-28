@@ -108,7 +108,7 @@ namespace Feature.Manager.Api.FeatureRuns
         }
 
         [HttpPost("stop")]
-        [ProducesResponseType(typeof(IEnumerable<RunningFeature>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FeatureRun), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]

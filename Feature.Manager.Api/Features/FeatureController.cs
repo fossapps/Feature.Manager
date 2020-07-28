@@ -21,7 +21,7 @@ namespace Feature.Manager.Api.Features
 
         [HttpGet("{featId}")]
         [ProducesResponseType(typeof(Feature), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetFeature(string featId)
         {
             try
