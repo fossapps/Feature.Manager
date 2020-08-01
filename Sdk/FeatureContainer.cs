@@ -18,7 +18,7 @@ namespace Fossapps.FeatureManager
     {
         private readonly TimeSpan _syncInterval;
         private readonly FeatureManager _manager;
-        private IEnumerable<RunningFeature> _features;
+        private IEnumerable<RunningFeature> _features = new List<RunningFeature>();
 
         public FeatureWorker(string endpoint, TimeSpan syncInterval)
         {
